@@ -1,28 +1,34 @@
 /**
- * 24点挑战 - 核心逻辑
+ * 24点挑战 - 核心逻辑 (科技感升级版)
  */
 
 class Game24 {
     constructor() {
-        this.numbers = []; // 当前题目生成的4个数字
-        this.expression = []; // 玩家当前输入的表达式（存储对象，包含类型和值）
-        this.usedIndices = new Set(); // 已使用的数字索引
+        this.numbers = [];
+        this.expression = [];
+        this.usedIndices = new Set();
         this.timer = 60;
         this.timerInterval = null;
-        this.score = 0;
         this.level = 1;
-        this.solution = ""; // 当前题目的参考答案
+        this.solution = "";
+        this.isGameOver = false;
 
         this.init();
     }
 
     init() {
         this.bindEvents();
-        this.nextLevel();
+        // 初始显示引导页，不自动开始
     }
 
-    // 绑定按钮事件
     bindEvents() {
+        // 引导页开始按钮
+        document.getElementById('btn-start-game').addEventListener('click', () => {
+            document.getElementById('intro-overlay').style.display = 'none';
+            this.level = 1;
+            this.startLevel();
+        });
+
         // 数字按钮点击
         document.querySelectorAll('.num-btn').forEach((btn, index) => {
             btn.addEventListener('click', () => this.handleNumberClick(index));
@@ -38,27 +44,37 @@ class Game24 {
         document.getElementById('btn-clear').addEventListener('click', () => this.handleClear());
         document.getElementById('btn-submit').addEventListener('click', () => this.handleSubmit());
         document.getElementById('btn-hint').addEventListener('click', () => this.showHint());
-        document.getElementById('btn-next').addEventListener('click', () => this.nextLevel());
         
-        // 弹窗关闭
-        document.getElementById('modal-close').addEventListener('click', () => {
-            document.getElementById('modal').style.display = 'none';
+        // 结算页按钮
+        document.getElementById('btn-next-level').addEventListener('click', () => {
+            document.getElementById('success-overlay').style.display = 'none';
+            this.level++;
+            this.startLevel();
+        });
+
+        document.getElementById('btn-share').addEventListener('click', () => {
+            this.handleShare();
+        });
+
+        // 失败/提示后的重置按钮
+        document.getElementById('btn-restart').addEventListener('click', () => {
+            document.getElementById('hint-overlay').style.display = 'none';
+            this.level = 1;
+            this.startLevel();
         });
     }
 
-    // 生成新关卡
-    nextLevel() {
+    startLevel() {
         this.stopTimer();
         this.generateSolvableNumbers();
         this.handleClear();
         this.updateUI();
         this.startTimer();
-        this.level++;
-        document.getElementById('level-val').innerText = this.level - 1;
-        document.getElementById('modal').style.display = 'none';
+        document.getElementById('level-val').innerText = this.level;
+        this.isGameOver = false;
     }
 
-    // 生成确保有解的4个数字
+    // 生成确保有解的4个数字，并根据关卡调整难度
     generateSolvableNumbers() {
         let found = false;
         while (!found) {
@@ -68,6 +84,11 @@ class Game24 {
             }
             const sol = this.solve24(nums);
             if (sol) {
+                // 简单难度过滤：前3关确保有加减乘除直接能算的解，或者包含8, 3, 4, 6等
+                if (this.level <= 3) {
+                    const hasEasyNums = nums.some(n => [8, 3, 4, 6].includes(n));
+                    if (!hasEasyNums && Math.random() > 0.3) continue;
+                }
                 this.numbers = nums;
                 this.solution = sol;
                 found = true;
@@ -75,45 +96,30 @@ class Game24 {
         }
     }
 
-    // 24点求解算法 (递归回溯)
     solve24(nums) {
         const ops = ['+', '-', '*', '/'];
-        const results = [];
-
-        // 辅助函数：尝试所有可能的计算组合
         const solve = (currentNums) => {
             if (currentNums.length === 1) {
-                if (Math.abs(currentNums[0].val - 24) < 1e-6) {
-                    return currentNums[0].expr;
-                }
+                if (Math.abs(currentNums[0].val - 24) < 1e-6) return currentNums[0].expr;
                 return null;
             }
-
             for (let i = 0; i < currentNums.length; i++) {
                 for (let j = 0; j < currentNums.length; j++) {
                     if (i === j) continue;
-
                     const nextNums = [];
                     for (let k = 0; k < currentNums.length; k++) {
                         if (k !== i && k !== j) nextNums.push(currentNums[k]);
                     }
-
                     const n1 = currentNums[i];
                     const n2 = currentNums[j];
-
-                    // 尝试四种运算
                     for (let op of ops) {
-                        // 减法和除法不满足交换律，所以 i, j 的顺序很重要
                         if ((op === '+' || op === '*') && i > j) continue;
                         if (op === '/' && Math.abs(n2.val) < 1e-6) continue;
-
-                        let resVal;
-                        let resExpr;
+                        let resVal, resExpr;
                         if (op === '+') { resVal = n1.val + n2.val; resExpr = `(${n1.expr}+${n2.expr})`; }
                         else if (op === '-') { resVal = n1.val - n2.val; resExpr = `(${n1.expr}-${n2.expr})`; }
                         else if (op === '*') { resVal = n1.val * n2.val; resExpr = `(${n1.expr}*${n2.expr})`; }
                         else if (op === '/') { resVal = n1.val / n2.val; resExpr = `(${n1.expr}/${n2.expr})`; }
-
                         const res = solve([...nextNums, { val: resVal, expr: resExpr }]);
                         if (res) return res;
                     }
@@ -121,33 +127,27 @@ class Game24 {
             }
             return null;
         };
-
         const initial = nums.map(n => ({ val: n, expr: n.toString() }));
         let sol = solve(initial);
-        if (sol) {
-            // 美化输出，将 * / 换回 × ÷
-            return sol.replace(/\*/g, '×').replace(/\//g, '÷');
-        }
-        return null;
+        return sol ? sol.replace(/\*/g, '×').replace(/\//g, '÷') : null;
     }
 
     handleNumberClick(index) {
-        if (this.usedIndices.has(index)) return;
-        
+        if (this.usedIndices.has(index) || this.isGameOver) return;
         this.expression.push({ type: 'num', value: this.numbers[index], index: index });
         this.usedIndices.add(index);
         this.updateUI();
-        this.animateButton(document.querySelectorAll('.num-btn')[index]);
+        this.playEffect(document.querySelectorAll('.num-btn')[index]);
     }
 
     handleOperatorClick(op) {
+        if (this.isGameOver) return;
         this.expression.push({ type: 'op', value: op });
         this.updateUI();
-        // 找到对应的按钮加动画
         const btns = document.querySelectorAll('.op-btn');
         for(let btn of btns) {
             if(btn.dataset.op === op) {
-                this.animateButton(btn);
+                this.playEffect(btn);
                 break;
             }
         }
@@ -155,9 +155,7 @@ class Game24 {
 
     handleDelete() {
         const last = this.expression.pop();
-        if (last && last.type === 'num') {
-            this.usedIndices.delete(last.index);
-        }
+        if (last && last.type === 'num') this.usedIndices.delete(last.index);
         this.updateUI();
     }
 
@@ -169,52 +167,57 @@ class Game24 {
 
     handleSubmit() {
         if (this.usedIndices.size < 4) {
-            this.showMessage("请使用全部四个数字！");
+            this.showToast("请使用全部四个数字！");
             return;
         }
-
-        const exprStr = this.getExpressionString();
-        // 将显示符号转为计算符号
+        const exprStr = this.expression.map(item => item.value).join('');
         const calcExpr = exprStr.replace(/×/g, '*').replace(/÷/g, '/');
-
         try {
-            // 使用 Function 代替 eval 更安全一点点，虽然都是前端环境
             const result = new Function(`return ${calcExpr}`)();
             if (Math.abs(result - 24) < 1e-6) {
                 this.stopTimer();
-                this.showModal("恭喜你！答案正确！", true);
+                this.showSuccess();
             } else {
-                this.showMessage(`当前结果是 ${parseFloat(result.toFixed(2))}，再试试吧！`);
+                this.showToast(`结果是 ${parseFloat(result.toFixed(2))}，不是24哦`);
             }
         } catch (e) {
-            this.showMessage("表达式不合法，请检查括号或运算符！");
+            this.showToast("表达式不合法！");
         }
     }
 
     showHint() {
-        this.showModal(`参考答案：<br><span class="sol-text">${this.solution} = 24</span>`, false);
+        this.stopTimer();
+        this.isGameOver = true;
+        document.getElementById('hint-text').innerHTML = `参考答案：<br><span class="highlight">${this.solution} = 24</span><br><br><small>查看答案后，进度将重置回第1关</small>`;
+        document.getElementById('hint-overlay').style.display = 'flex';
     }
 
-    getExpressionString() {
-        return this.expression.map(item => item.value).join('');
+    showSuccess() {
+        this.isGameOver = true;
+        document.getElementById('success-level').innerText = this.level;
+        document.getElementById('success-time').innerText = 60 - this.timer;
+        document.getElementById('success-overlay').style.display = 'flex';
+        this.createParticles();
+    }
+
+    handleShare() {
+        const text = `我在《24点挑战》中成功闯到了第 ${this.level} 关！快来挑战我吧！`;
+        if (navigator.share) {
+            navigator.share({ title: '24点挑战', text: text, url: window.location.href });
+        } else {
+            this.showToast("已复制成绩，快去分享吧！");
+            navigator.clipboard.writeText(text);
+        }
     }
 
     updateUI() {
-        // 更新数字按钮状态
         const numBtns = document.querySelectorAll('.num-btn');
         numBtns.forEach((btn, i) => {
             btn.innerText = this.numbers[i];
-            if (this.usedIndices.has(i)) {
-                btn.classList.add('disabled');
-            } else {
-                btn.classList.remove('disabled');
-            }
+            btn.classList.toggle('disabled', this.usedIndices.has(i));
         });
-
-        // 更新表达式显示
         const display = document.getElementById('expression-display');
-        display.innerText = this.getExpressionString() || "等待输入...";
-        display.style.color = this.expression.length > 0 ? "#333" : "#999";
+        display.innerText = this.expression.map(item => item.value).join('') || "READY_TO_COMPUTE_";
     }
 
     startTimer() {
@@ -225,7 +228,8 @@ class Game24 {
             document.getElementById('timer-val').innerText = this.timer;
             if (this.timer <= 0) {
                 this.stopTimer();
-                this.showModal("时间到啦！看看参考答案吧。", false);
+                this.showToast("时间到！挑战失败");
+                setTimeout(() => this.showHint(), 1500);
             }
         }, 1000);
     }
@@ -234,48 +238,32 @@ class Game24 {
         if (this.timerInterval) clearInterval(this.timerInterval);
     }
 
-    showMessage(msg) {
+    showToast(msg) {
         const toast = document.getElementById('toast');
         toast.innerText = msg;
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    showModal(content, isSuccess) {
-        const modal = document.getElementById('modal');
-        const title = document.getElementById('modal-title');
-        const body = document.getElementById('modal-body');
-        
-        title.innerText = isSuccess ? "太棒了！" : "提示";
-        body.innerHTML = content;
-        modal.style.display = 'flex';
-        
-        if (isSuccess) {
-            confetti(); // 简单的成功效果
+    playEffect(btn) {
+        btn.style.transform = 'scale(0.9)';
+        setTimeout(() => btn.style.transform = '', 100);
+    }
+
+    createParticles() {
+        const container = document.getElementById('success-overlay');
+        for (let i = 0; i < 50; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = Math.random() * 100 + 'vh';
+            p.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            p.style.setProperty('--tx', (Math.random() - 0.5) * 200 + 'px');
+            p.style.setProperty('--ty', (Math.random() - 0.5) * 200 + 'px');
+            container.appendChild(p);
+            setTimeout(() => p.remove(), 2000);
         }
     }
-
-    animateButton(btn) {
-        btn.classList.add('btn-pop');
-        setTimeout(() => btn.classList.remove('btn-pop'), 200);
-    }
 }
 
-// 简单的纸屑效果（模拟成功动画）
-function confetti() {
-    const colors = ['#FF5722', '#FFC107', '#4CAF50', '#2196F3', '#9C27B0'];
-    for (let i = 0; i < 30; i++) {
-        const div = document.createElement('div');
-        div.className = 'confetti';
-        div.style.left = Math.random() * 100 + 'vw';
-        div.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        div.style.animationDelay = Math.random() * 2 + 's';
-        document.body.appendChild(div);
-        setTimeout(() => div.remove(), 3000);
-    }
-}
-
-// 启动游戏
-window.onload = () => {
-    new Game24();
-};
+window.onload = () => new Game24();
