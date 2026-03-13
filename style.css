@@ -1,0 +1,270 @@
+/* 24点挑战 - 样式表 */
+
+:root {
+    --primary-color: #FF9800;
+    --secondary-color: #4CAF50;
+    --accent-color: #2196F3;
+    --bg-color: #FFF9C4;
+    --card-bg: #FFFFFF;
+    --text-color: #333333;
+    --shadow: 0 4px 8px rgba(0,0,0,0.1);
+    --btn-shadow: 0 6px 0 #E65100;
+    --btn-active-shadow: 0 2px 0 #E65100;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding: 20px;
+}
+
+/* 游戏容器 */
+.game-container {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 顶部信息栏 */
+header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    text-shadow: 2px 2px 0 #fff, 4px 4px 0 rgba(0,0,0,0.1);
+    margin-bottom: 10px;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+}
+
+#timer-val { color: #F44336; }
+#level-val { color: var(--secondary-color); }
+
+/* 数字卡片区域 */
+.number-area {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin: 10px 0;
+}
+
+.num-btn {
+    aspect-ratio: 1 / 1;
+    background: white;
+    border: 4px solid var(--primary-color);
+    border-radius: 20px;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 0 var(--primary-color), 0 10px 15px rgba(0,0,0,0.1);
+    transition: all 0.1s;
+    user-select: none;
+}
+
+.num-btn:active {
+    transform: translateY(6px);
+    box-shadow: 0 2px 0 var(--primary-color);
+}
+
+.num-btn.disabled {
+    background: #eee;
+    border-color: #ccc;
+    color: #ccc;
+    box-shadow: 0 4px 0 #ccc;
+    transform: translateY(4px);
+    pointer-events: none;
+}
+
+/* 表达式显示区 */
+.display-area {
+    background: white;
+    min-height: 80px;
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+    border: 2px dashed var(--primary-color);
+    word-break: break-all;
+    text-align: center;
+}
+
+/* 运算符区域 */
+.operator-area {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.op-btn {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 15px 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    box-shadow: 0 5px 0 #1565C0;
+    cursor: pointer;
+    transition: all 0.1s;
+}
+
+.op-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #1565C0;
+}
+
+/* 控制按钮区域 */
+.control-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.ctrl-btn {
+    padding: 12px 0;
+    border-radius: 12px;
+    border: none;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+    transition: all 0.1s;
+}
+
+.ctrl-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+}
+
+#btn-delete { background: #FFCDD2; color: #C62828; }
+#btn-clear { background: #CFD8DC; color: #37474F; }
+#btn-submit { background: var(--secondary-color); color: white; grid-column: span 3; font-size: 1.4rem; padding: 15px; box-shadow: 0 6px 0 #2E7D32; margin-top: 5px; }
+#btn-submit:active { transform: translateY(4px); box-shadow: 0 2px 0 #2E7D32; }
+
+#btn-hint { background: #FFF176; color: #F57F17; grid-column: span 3; margin-top: 10px; }
+
+/* 提示框 (Toast) */
+#toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+#toast.show { opacity: 1; }
+
+/* 弹窗 (Modal) */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    width: 100%;
+    max-width: 320px;
+    border-radius: 25px;
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modalPop {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+#modal-title { font-size: 1.8rem; color: var(--primary-color); margin-bottom: 15px; }
+#modal-body { font-size: 1.2rem; margin-bottom: 25px; line-height: 1.5; }
+.sol-text { font-weight: bold; color: var(--secondary-color); font-size: 1.4rem; }
+
+#btn-next {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    box-shadow: 0 5px 0 #2E7D32;
+    cursor: pointer;
+}
+
+#modal-close {
+    position: absolute;
+    top: 15px; right: 15px;
+    font-size: 1.5rem;
+    color: #999;
+    cursor: pointer;
+}
+
+/* 动画效果 */
+.btn-pop { animation: btnPop 0.2s ease-out; }
+@keyframes btnPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.confetti {
+    position: fixed;
+    width: 10px; height: 10px;
+    top: -10px;
+    z-index: 3000;
+    animation: fall 3s linear forwards;
+}
+
+@keyframes fall {
+    to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}

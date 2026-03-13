@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>24点挑战</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="game-container">
+        <header>
+            <h1>24点挑战</h1>
+            <div class="stats">
+                <span>关卡: <span id="level-val">1</span></span>
+                <span>时间: <span id="timer-val">60</span>s</span>
+            </div>
+        </header>
+
+        <main>
+            <!-- 数字卡片 -->
+            <div class="number-area">
+                <button class="num-btn"></button>
+                <button class="num-btn"></button>
+                <button class="num-btn"></button>
+                <button class="num-btn"></button>
+            </div>
+
+            <!-- 表达式显示 -->
+            <div class="display-area" id="expression-display">等待输入...</div>
+
+            <!-- 运算符 -->
+            <div class="operator-area">
+                <button class="op-btn" data-op="+">+</button>
+                <button class="op-btn" data-op="-">-</button>
+                <button class="op-btn" data-op="×">×</button>
+                <button class="op-btn" data-op="÷">÷</button>
+                <button class="op-btn" data-op="(">(</button>
+                <button class="op-btn" data-op=")">)</button>
+            </div>
+
+            <!-- 控制按钮 -->
+            <div class="control-area">
+                <button class="ctrl-btn" id="btn-delete">删除</button>
+                <button class="ctrl-btn" id="btn-clear">清空</button>
+                <button class="ctrl-btn" id="btn-hint">提示</button>
+                <button class="ctrl-btn" id="btn-submit">提交答案</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- 提示信息 -->
+    <div id="toast"></div>
+
+    <!-- 结果/提示弹窗 -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <span id="modal-close">&times;</span>
+            <h2 id="modal-title">恭喜！</h2>
+            <p id="modal-body">答案正确！</p>
+            <button id="btn-next">下一题</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
