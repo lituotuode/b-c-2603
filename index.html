@@ -3,17 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>24点挑战</title>
+    <title>24点挑战 - NEON EDITION</title>
+    <!-- 引入科技感字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- 引导页 (Intro Overlay) -->
+    <div class="overlay" id="intro-overlay">
+        <div class="overlay-content">
+            <h2>24点挑战</h2>
+            <p>NEON EDITION</p>
+            <ul class="rule-list">
+                <li>1. 系统随机生成 4 个 1-9 之间的整数。</li>
+                <li>2. 使用 + - × ÷ 及括号组合计算得到 24。</li>
+                <li>3. 每个数字必须且只能使用一次。</li>
+                <li>4. 每一关限时 60 秒。</li>
+                <li>5. <b>注意：</b>查看提示将导致进度重置！</li>
+            </ul>
+            <button class="main-btn" id="btn-start-game">开始挑战</button>
+        </div>
+    </div>
+
+    <!-- 游戏主界面 -->
     <div class="game-container">
         <header>
-            <h1>24点挑战</h1>
+            <h1>24-CHALLENGE</h1>
             <div class="stats">
-                <span>关卡: <span id="level-val">1</span></span>
-                <span>时间: <span id="timer-val">60</span>s</span>
+                <span>LEVEL: <span id="level-val">1</span></span>
+                <span>TIME: <span id="timer-val">60</span>s</span>
             </div>
         </header>
 
@@ -27,7 +46,7 @@
             </div>
 
             <!-- 表达式显示 -->
-            <div class="display-area" id="expression-display">等待输入...</div>
+            <div class="display-area" id="expression-display">READY_TO_COMPUTE_</div>
 
             <!-- 运算符 -->
             <div class="operator-area">
@@ -41,26 +60,38 @@
 
             <!-- 控制按钮 -->
             <div class="control-area">
-                <button class="ctrl-btn" id="btn-delete">删除</button>
-                <button class="ctrl-btn" id="btn-clear">清空</button>
-                <button class="ctrl-btn" id="btn-hint">提示</button>
-                <button class="ctrl-btn" id="btn-submit">提交答案</button>
+                <button class="ctrl-btn" id="btn-delete">DEL</button>
+                <button class="ctrl-btn" id="btn-clear">CLR</button>
+                <button class="ctrl-btn" id="btn-hint">HINT</button>
+                <button class="ctrl-btn" id="btn-submit">SUBMIT_ANSWER</button>
             </div>
         </main>
     </div>
 
-    <!-- 提示信息 -->
-    <div id="toast"></div>
-
-    <!-- 结果/提示弹窗 -->
-    <div class="modal-overlay" id="modal">
-        <div class="modal-content">
-            <span id="modal-close">&times;</span>
-            <h2 id="modal-title">恭喜！</h2>
-            <p id="modal-body">答案正确！</p>
-            <button id="btn-next">下一题</button>
+    <!-- 成功结算页 (Success Overlay) -->
+    <div class="overlay" id="success-overlay">
+        <div class="overlay-content">
+            <h2>MISSION_SUCCESS</h2>
+            <p>
+                恭喜！你已通过第 <span class="highlight" id="success-level">1</span> 关<br>
+                用时：<span class="highlight" id="success-time">0</span> 秒
+            </p>
+            <button class="main-btn" id="btn-next-level">下一关</button>
+            <button class="main-btn" id="btn-share" style="border-color: var(--neon-pink); color: var(--neon-pink);">分享成绩</button>
         </div>
     </div>
+
+    <!-- 提示/失败页 (Hint Overlay) -->
+    <div class="overlay" id="hint-overlay">
+        <div class="overlay-content">
+            <h2>SYSTEM_HINT</h2>
+            <p id="hint-text"></p>
+            <button class="main-btn" id="btn-restart">重新开始 (LV.1)</button>
+        </div>
+    </div>
+
+    <!-- 提示信息 (Toast) -->
+    <div id="toast"></div>
 
     <script src="game.js"></script>
 </body>
